@@ -1,0 +1,35 @@
+#/bin/bash
+cat tester.dump | sfdisk /dev/vda
+mkfs.vfat -F 32 /dev/vda1
+mkswap --f /dev/vda2
+mkfs.ext4 -F /dev/vda3 
+mkfs.ext4 -F /dev/vda4
+
+
+mount /dev/vda3 /mnt
+mkdir /mnt/{boot,home}
+mount /dev/vda1 /mnt/boot
+swapon /dev/vda2
+mount /dev/vda4 /mnt/home
+
+pacstrap /mnt base base-devel linux
+
+
+genfstab -U -p /mnt > /mnt/etc/fstab
+
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+echo "LC_COLLATE=C" >>/mnt/etc/locale.conf
+sed -i '/#en_US.UTF-8/s/^#//g' /mnt/etc/locale.gen
+arch-chroot /mnt /root
+locale-gen
+exit
+
+pacstrap /mnt dhcpcd
+
+
+
+pacstrap /mnt grub
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot /mnt /root grub-install --target=i386-pc --recheck /dev/vda
+exit
+
