@@ -12,7 +12,7 @@ mount /dev/vda1 /mnt/boot
 swapon /dev/vda2
 mount /dev/vda4 /mnt/home
 
-pacstrap /mnt base base-devel linux
+pacstrap /mnt base base-devel linux grub dhcpcd
 
 
 genfstab -U -p /mnt > /mnt/etc/fstab
@@ -20,16 +20,9 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 echo "LC_COLLATE=C" >>/mnt/etc/locale.conf
 sed -i '/#en_US.UTF-8/s/^#//g' /mnt/etc/locale.gen
-arch-chroot /mnt /root
 locale-gen
-exit
-
-pacstrap /mnt dhcpcd
-
-
-
-pacstrap /mnt grub
+arch-chroot /mnt mkdir /boot/grub
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 arch-chroot /mnt /root grub-install --target=i386-pc --recheck /dev/vda
-exit
+
 
